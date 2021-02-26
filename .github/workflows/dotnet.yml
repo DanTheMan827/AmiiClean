@@ -1,0 +1,41 @@
+name: .NET
+
+on:
+  push:
+    branches: '*'
+  pull_request:
+    branches: '*'
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        submodules: true
+    
+    - name: Restore dependencies
+      run: dotnet restore
+      
+    - name: setup-msbuild
+      uses: microsoft/setup-msbuild@v1
+    
+    - name: Build
+      run: msbuild amiiclean.sln
+    
+    - name: Write configuration file
+      uses: DamianReeves/write-file-action@v1.0
+      with:
+        # The path to the file to write
+        path: amiiclean\bin\Debug\net461\appsettings.json
+        contents: '{ "AmiiboKeys": "key_retail.bin", "CDNKeys": "", "TitleCacheDir": "" }'
+        write-mode: overwrite
+    
+    - name: Publish build artifacts
+      uses: actions/upload-artifact@v2.2.2
+      with:
+        name: amiiclean-debug
+        path: amiiclean\bin\Debug\net461

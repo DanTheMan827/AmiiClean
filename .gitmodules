@@ -1,0 +1,3 @@
+[submodule "libamiibo"]
+	path = libamiibo
+	url = https://github.com/Falco20019/libamiibo.git
