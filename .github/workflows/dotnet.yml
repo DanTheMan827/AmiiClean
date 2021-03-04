@@ -23,16 +23,14 @@ jobs:
     - name: setup-msbuild
       uses: microsoft/setup-msbuild@v1
     
+    - name: Git Config
+      run: git config --global user.email "git@example.com" && git config --global user.name "Builder"
+    
+    - name: Patch
+      run: cd libamiibo && git am ../0001-Don-t-use-appsettings.json.patch
+    
     - name: Build
       run: msbuild amiiclean.sln
-    
-    - name: Write configuration file
-      uses: DamianReeves/write-file-action@v1.0
-      with:
-        # The path to the file to write
-        path: amiiclean\bin\Debug\net461\appsettings.json
-        contents: '{ "AmiiboKeys": "key_retail.bin", "CDNKeys": "", "TitleCacheDir": "" }'
-        write-mode: overwrite
     
     - name: Publish build artifacts
       uses: actions/upload-artifact@v2.2.2

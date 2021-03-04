@@ -1,0 +1,88 @@
+From 1fe008ee63dd62577c16b01bb82f5a9e466f7c29 Mon Sep 17 00:00:00 2001
+From: Daniel <790119+DanTheMan827@users.noreply.github.com>
+Date: Thu, 4 Mar 2021 10:42:31 -0600
+Subject: [PATCH] Don't use appsettings.json
+
+---
+ libamiibo/Files.cs           |  4 ++--
+ libamiibo/Helper/CDNUtils.cs |  2 +-
+ libamiibo/Settings.cs        | 23 -----------------------
+ libamiibo/libamiibo.csproj   |  6 ------
+ 4 files changed, 3 insertions(+), 32 deletions(-)
+ delete mode 100644 libamiibo/Settings.cs
+
+diff --git a/libamiibo/Files.cs b/libamiibo/Files.cs
+index 035f213..d084cf8 100644
+--- a/libamiibo/Files.cs
++++ b/libamiibo/Files.cs
+@@ -4,8 +4,8 @@ namespace LibAmiibo
+ {
+     static class Files
+     {
+-        public static AmiiboKeys AmiiboKeys => AmiiboKeys.LoadKeys(Settings.Default["AmiiboKeys"]);
++        public static AmiiboKeys AmiiboKeys => AmiiboKeys.LoadKeys("key_retail.bin");
+ 
+-        public static CDNKeys CDNKeys => CDNKeys.LoadKeys(Settings.Default["CDNKeys"]);
++        public static CDNKeys CDNKeys => CDNKeys.LoadKeys("cdn_keys.bin");
+     }
+ }
+diff --git a/libamiibo/Helper/CDNUtils.cs b/libamiibo/Helper/CDNUtils.cs
+index 6fe0429..e968881 100644
+--- a/libamiibo/Helper/CDNUtils.cs
++++ b/libamiibo/Helper/CDNUtils.cs
+@@ -83,7 +83,7 @@ public static byte[] DownloadTitleDataStream(Title title)
+         private static byte[] GetCachedStreamData(Title title)
+         {
+             var titleId = title.TitleID.ToString("X16").ToUpper();
+-            var cacheFileName = Path.Combine(Settings.Default["TitleCacheDir"], titleId);
++            var cacheFileName = Path.Combine("title_cache", titleId);
+             if (File.Exists(cacheFileName))
+             {
+                 try
+diff --git a/libamiibo/Settings.cs b/libamiibo/Settings.cs
+deleted file mode 100644
+index c16132e..0000000
+--- a/libamiibo/Settings.cs
++++ /dev/null
+@@ -1,23 +0,0 @@
+-﻿using Microsoft.Extensions.Configuration;
+-using System;
+-using System.IO;
+-using System.Reflection;
+-
+-namespace LibAmiibo
+-{
+-    class Settings
+-    {
+-        private Settings() { }
+-
+-        static Settings()
+-        {
+-            var builder = new ConfigurationBuilder()
+-            .SetBasePath(Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath))
+-            .AddJsonFile("appsettings.json");
+-
+-            Default = builder.Build();
+-        }
+-
+-        public static IConfigurationRoot Default { get; }
+-    }
+-}
+diff --git a/libamiibo/libamiibo.csproj b/libamiibo/libamiibo.csproj
+index b71f992..eb6aa94 100644
+--- a/libamiibo/libamiibo.csproj
++++ b/libamiibo/libamiibo.csproj
+@@ -25,10 +25,4 @@
+     <PackageReference Include="System.Linq" Version="4.3.0" />
+   </ItemGroup>
+ 
+-  <ItemGroup>
+-    <None Update="appsettings.json">
+-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+-    </None>
+-  </ItemGroup>
+-
+ </Project>
+-- 
+2.26.2.windows.1
+
